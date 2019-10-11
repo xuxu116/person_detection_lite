@@ -268,10 +268,10 @@ static int detect_retinaperson(const cv::Mat& bgr, const ncnn::Mat& anchors, std
 #endif // NCNN_VULKAN
 
     // mobile1.0x: input 0, score 545, bbox 546
-    retinaperson.load_param("/models/mobile1.0x.param");
-    retinaperson.load_model("/models/mobile1.0x.bin");
+    retinaperson.load_param("./models/mobile1.0x.param");
+    retinaperson.load_model("./models/mobile1.0x.bin");
 
-    const float prob_threshold = 0.5f;
+    const float prob_threshold = 0.6f;
     const float nms_threshold = 0.5f;
 
     int img_w = bgr.cols;
