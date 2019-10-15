@@ -17,6 +17,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
+#include "benchmark.h"
 #include "platform.h"
 #include "net.h"
 #if NCNN_VULKAN
@@ -24,6 +25,7 @@
 #endif // NCNN_VULKAN
 
 using std::vector;
+static ncnn::Option g_default_option;
 
 struct FaceObject
 {
@@ -259,20 +261,57 @@ static void generate_proposals(const ncnn::Mat& score_blob, const ncnn::Mat& bbo
 	}	
 }
 
+static void benchmark(ncnn::Net& retinaperson){
+	// (288x480) || (384x672) || (512x928)
+	int img_w[4] = {224, 288, 384, 512};
+	int img_h[4] = {224, 480, 672, 928};
+	for(int s=0; s<4; s++){
+		ncnn::Mat score_blob, bbox_blob, in=ncnn::Mat(img_w[s], img_h[s], 3);
+		for(int i=0; i<5; i++){
+			ncnn::Extractor ex = retinaperson.create_extractor();
+			ex.input("0", in);
+			ex.extract("545", score_blob);
+			ex.extract("546", bbox_blob);
+		}
+
+		double time_max = -DBL_MAX; 
+		double time_min = DBL_MAX;     
+		double time_avg = 0;
+		for(int i=0; i<10; i++){
+			double start = ncnn::get_current_time();
+			{
+				ncnn::Extractor ex = retinaperson.create_extractor();
+				ex.input("0", in);
+				ex.extract("545", score_blob);
+				ex.extract("546", bbox_blob);
+			}
+			double end = ncnn::get_current_time();
+			double time = end - start;  
+			time_min = std::min(time_min, time);
+			time_max = std::max(time_max, time); 
+			time_avg += time;
+		}
+		time_avg /= 10;
+		fprintf(stderr, "%dx%d  min = %7.2f  max = %7.2f  avg = %7.2f\n", img_w[s], img_h[s], time_min, time_max, time_avg);
+	}
+}
+
 static int detect_retinaperson(const cv::Mat& bgr, const ncnn::Mat& anchors, std::vector<FaceObject>& faceobjects, const int resize_w, const int resize_h)
 {
     ncnn::Net retinaperson;
+	retinaperson.opt = g_default_option; 
 
 #if NCNN_VULKAN
     retinaperson.opt.use_vulkan_compute = true;
 #endif // NCNN_VULKAN
 
     // mobile1.0x: input 0, score 545, bbox 546
-    retinaperson.load_param("./models/mobile1.0x.param");
-    retinaperson.load_model("./models/mobile1.0x.bin");
-
+    retinaperson.load_param("./models/mobile0.35xFPNdw.param");
+    retinaperson.load_model("./models/mobile0.35xFPNdw.bin");
+	benchmark(retinaperson);
     const float prob_threshold = 0.6f;
     const float nms_threshold = 0.5f;
+	printf("anchor shape : %d %d %d\n", anchors.w, anchors.h, anchors.c);
 
     int img_w = bgr.cols;
     int img_h = bgr.rows;
@@ -280,6 +319,7 @@ static int detect_retinaperson(const cv::Mat& bgr, const ncnn::Mat& anchors, std
 	ncnn::Mat in = ncnn::Mat::from_pixels_resize(bgr.data, ncnn::Mat::PIXEL_BGR, bgr.cols, bgr.rows, resize_w, resize_h);
 	const float mean_vals[3] = {102.9801f, 115.9465f, 122.7717f};
 	in.substract_mean_normalize(mean_vals, 0);
+
     ncnn::Extractor ex = retinaperson.create_extractor();
 
     //ex.input("x.1", in);
@@ -378,7 +418,7 @@ int main(int argc, char** argv)
         fprintf(stderr, "Usage: %s [imagepath]\n", argv[0]);
         return -1;
     }
-
+	g_default_option.num_threads = 1;
     const char* imagepath = argv[1];
 
     cv::Mat m = cv::imread(imagepath, 1);
@@ -400,7 +440,6 @@ int main(int argc, char** argv)
 	const vector<int> ANCHOR_SIZE {32, 64, 128};
 	const vector<int> STRIDE {8, 16, 32};
 	const ncnn::Mat anchors = generate_anchors(resize_w, resize_h, OCTAVE, SCALE_PER_OCTAVE, ASPRCT_RATIO, ANCHOR_SIZE, STRIDE);
-	printf("anchor shape : %d %d %d\n", anchors.w, anchors.h, anchors.c);
 
 
     std::vector<FaceObject> faceobjects;
