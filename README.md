@@ -10,8 +10,8 @@ Flops and params are evaluated by [pytorch-OpCounter](https://github.com/Lyken17
 
 The mobile0.35xFPNdw and mobile1.0x are not targeting [wider pedestrian](https://competitions.codalab.org/competitions/20132), and no image in wider pedestrain is in the training set. The AP is just for reference.
 
-* mobile1.0x: wider pedestrian AP: 0.377688, params: 2.253M
-* mobile0.35xFPNdw: wider pedestrian AP: 0.377688, params: 396.128K
+* mobile1.0x: wider pedestrian AP: 0.3777, params: 2.253M
+* mobile0.35xFPNdw: wider pedestrian AP: 0.3577, params: 396.128K
 
 #### MACs vs. input resolution
 
