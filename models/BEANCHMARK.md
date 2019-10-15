@@ -12,7 +12,7 @@ The mobile0.35xFPNdw and mobile1.0x are not targeting [wider pedestrian](https:/
 #### MACs vs. input resolution
 
 model | (224, 224) | (480, 288) | (928, 512) | (1152, 640) 
-— | — | — |— | — 
+--- | --- | --- | --- | --- 
 mobile1.0x | - | 1.334G | 4.585G | 7.115G
 mobile1.0x backbone | 326.207M | 898.733M | 3.089G | 4.793G
 mobile0.35xFPNdw | - | 508.895M | 1.749G | 2.714G
