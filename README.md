@@ -2,6 +2,9 @@
 Light-weight model with [NCNN](<https://github.com/Tencent/ncnn>) inference for person/pedestrian detection. The model is trained with [maskrcnn](<https://github.com/facebookresearch/maskrcnn-benchmark>) but not for any specified perdestrain detection dataset. You can view the model structure easily with [netron](<https://github.com/lutzroeder/netron>). The pytorch official [mobilenetv2](<https://pytorch.org/hub/pytorch_vision_mobilenet_v2/>) is used as backbone.
 It seems the FPN structure and ROIHead produce much computations and will be improved sooner or later. However it is much harder than face detection for tiny networks, expecially for surveillance.
 
+## Model Training
+Please refer to the [config](<https://github.com/xuxu116/maskrcnn-benchmark/blob/e492f6276f1b6796d8b51c59fd308ac627b088c8/configs/person_detection/retinanet_mobileV2-FPN_1x_FreeAnchor.yaml>) for training settings. You should prepare the COCOperson annotation if needed. For wider perdestrian, I construct the dataset in coco-style and it works fine. 
+
 ## Model Zoo and Baselines
 
 Flops and params are evaluated by [pytorch-OpCounter](https://github.com/Lyken17/pytorch-OpCounter). More baselines are comming soon..
