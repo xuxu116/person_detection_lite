@@ -15,6 +15,7 @@ The mobile0.35xFPNdw and mobile1.0x are not targeting [wider pedestrian](https:/
 
 * mobile1.0x: wider pedestrian AP: 0.3777(input size: 928x512), params: 2.253M
 * mobile0.35xFPNdw: wider pedestrian AP: 0.3577(intput size: 928x512), params: 396.128K
+* mobile0.35xFPNdw_widerpedestrian: wider pedestrian AP: 0.4935(intput size: 928x512, train with wider pedestrian only)
 
 #### MACs vs. input resolution
 
